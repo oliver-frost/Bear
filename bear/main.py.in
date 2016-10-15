@@ -329,10 +329,15 @@ def create_parser():
         dest='raw_entries',
         action='store_true',
         help="""disable filter, unformated output.""")
+
+    script_dir = os.path.dirname(__file__)
+    libear_file_path = os.path.normpath(os.path.join(script_dir, "..", "libear", "libear.so"))
+    if not os.path.exists(libear_file_path):
+        libear_file_path = "@DEFAULT_PRELOAD_FILE@"
     testing.add_argument(
         '--libear', '-l',
         dest='libear',
-        default="@DEFAULT_PRELOAD_FILE@",
+        default=libear_file_path,
         action='store',
         help="""specify libear file location.""")
 
