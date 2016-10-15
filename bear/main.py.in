@@ -198,15 +198,15 @@ def shell_escape(command):
         for this job. Currently is running through the string with a basic
         state checking. """
 
-        reserved = {' ', '$', '%', '&', '(', ')', '[', ']', '{', '}', '*', '|',
-                    '<', '>', '@', '?', '!'}
+        reserved = set([' ', '$', '%', '&', '(', ')', '[', ']', '{', '}', '*', '|',
+                    '<', '>', '@', '?', '!'])
         state = 0
         for current in word:
             if state == 0 and current in reserved:
                 return True
             elif state == 0 and current == '\\':
                 state = 1
-            elif state == 1 and current in reserved | {'\\'}:
+            elif state == 1 and current in reserved | set(['\\']):
                 state = 0
             elif state == 0 and current == '"':
                 state = 2
@@ -232,10 +232,10 @@ def shell_escape(command):
 def is_source(filename):
     """ A predicate to decide the filename is a source file or not. """
 
-    accepted = {
+    accepted = set([
         '.c', '.cc', '.cp', '.cpp', '.cxx', '.c++', '.m', '.mm', '.i', '.ii',
         '.mii'
-    }
+    ])
     __, ext = os.path.splitext(filename)
     return ext.lower() in accepted
 
@@ -373,19 +373,19 @@ def classify_parameters(command, abspath):
         # compiler action parameters are the most important ones...
         if arg == '-c':
             action(state, Action.Compile)
-        elif arg in {'-E', '-S', '-cc1', '-M', '-MM', '-###'}:
+        elif arg in set(['-E', '-S', '-cc1', '-M', '-MM', '-###']):
             action(state, Action.Ignored)
         # some preprocessor parameters are ignored...
-        elif arg in {'-MD', '-MMD', '-MG', '-MP'}:
+        elif arg in set(['-MD', '-MMD', '-MG', '-MP']):
             pass
-        elif arg in {'-MF', '-MT', '-MQ'}:
+        elif arg in set(['-MF', '-MT', '-MQ']):
             next(args)
         # linker options are ignored...
-        elif arg in {'-static', '-shared', '-s', '-rdynamic'}:
+        elif arg in set(['-static', '-shared', '-s', '-rdynamic']):
             pass
         elif re.match(r'^-[lL].+', arg):
             pass
-        elif arg in {'-l', '-L', '-u', '-z', '-T', '-Xlinker'}:
+        elif arg in set(['-l', '-L', '-u', '-z', '-T', '-Xlinker']):
             next(args)
         # parameters which looks source file are taken...
         elif re.match(r'^[^-].+', arg) and is_source(arg):
